@@ -89,13 +89,14 @@ async function loadToday() {
   }
 }
 
-async function submitAnswer(answer) {
+async function submitAnswer(payload) {
+  const { answer, mood } = payload
   submitting.value = true
   try {
     const res = await fetch('/api/answer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answer })
+      body: JSON.stringify({ answer, mood })
     })
     const json = await res.json()
     if (json.success) {

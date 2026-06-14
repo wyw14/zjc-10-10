@@ -7,6 +7,15 @@ const app = express();
 const PORT = 3110;
 const DATA_FILE = path.join(__dirname, 'questions.json');
 
+const MOOD_OPTIONS = [
+  { id: 'happy', emoji: '😊', label: '开心' },
+  { id: 'calm', emoji: '😌', label: '平静' },
+  { id: 'tired', emoji: '😩', label: '疲惫' },
+  { id: 'excited', emoji: '🤩', label: '兴奋' },
+  { id: 'sad', emoji: '😢', label: '难过' },
+  { id: 'angry', emoji: '😠', label: '生气' }
+];
+
 app.use(cors());
 app.use(express.json());
 
@@ -75,7 +84,8 @@ function selectQuestionForToday(data) {
       question: selected.question,
       answer: '',
       answered: false,
-      answeredAt: null
+      answeredAt: null,
+      mood: null
     };
   }
 
@@ -94,7 +104,8 @@ function ensureTodayQuestion(data) {
       question: data.currentQuestion.question,
       answer: '',
       answered: false,
-      answeredAt: null
+      answeredAt: null,
+      mood: null
     };
     writeData(data);
   }
@@ -106,25 +117,27 @@ app.get('/api/today', (req, res) => {
     const data = readData();
     const question = ensureTodayQuestion(data);
     const todayStr = getDateString();
-    const todayAnswer = data.answers[todayStr] || { answer: '', answered: false };
+    const todayAnswer = data.answers[todayStr] || { answer: '', answered: false, mood: null };
     res.json({
       success: true,
       data: {
         question: question,
         answer: todayAnswer.answer,
         answered: todayAnswer.answered,
-        date: todayStr
+        mood: todayAnswer.mood,
+        date: todayStr,
+        moodOptions: MOOD_OPTIONS
       }
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: '服务器错�? });
+    res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
 
 app.post('/api/answer', (req, res) => {
   try {
-    const { answer } = req.body;
+    const { answer, mood } = req.body;
     if (typeof answer !== 'string') {
       return res.status(400).json({ success: false, message: '回答内容无效' });
     }
@@ -132,12 +145,17 @@ app.post('/api/answer', (req, res) => {
     ensureTodayQuestion(data);
     const todayStr = getDateString();
 
+    const validMood = MOOD_OPTIONS.find(m => m.id === mood);
+    const moodValue = validMood ? mood : null;
+
+    const currentAnswer = data.answers[todayStr] || {};
     data.answers[todayStr] = {
       questionId: data.currentQuestion.questionId,
       question: data.currentQuestion.question,
       answer: answer,
       answered: answer.trim().length > 0,
-      answeredAt: answer.trim().length > 0 ? new Date().toISOString() : null
+      answeredAt: answer.trim().length > 0 ? new Date().toISOString() : null,
+      mood: moodValue !== null ? moodValue : (currentAnswer.mood || null)
     };
 
     writeData(data);
@@ -146,12 +164,13 @@ app.post('/api/answer', (req, res) => {
       data: {
         date: todayStr,
         answered: data.answers[todayStr].answered,
-        answeredAt: data.answers[todayStr].answeredAt
+        answeredAt: data.answers[todayStr].answeredAt,
+        mood: data.answers[todayStr].mood
       }
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: '服务器错�? });
+    res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
 
@@ -164,18 +183,27 @@ app.get('/api/history', (req, res) => {
 
     const daysInMonth = new Date(y, m, 0).getDate();
     const calendar = [];
+    const moodStats = {};
+    MOOD_OPTIONS.forEach(mood => {
+      moodStats[mood.id] = 0;
+    });
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const entry = data.answers[dateStr];
+      const mood = entry ? entry.mood : null;
       calendar.push({
         date: dateStr,
         day: day,
         hasQuestion: !!entry,
         answered: !!(entry && entry.answered),
         answer: entry ? entry.answer : '',
-        question: entry ? entry.question : ''
+        question: entry ? entry.question : '',
+        mood: mood
       });
+      if (mood && moodStats[mood] !== undefined) {
+        moodStats[mood]++;
+      }
     }
 
     let answeredCount = 0;
@@ -209,14 +237,16 @@ app.get('/api/history', (req, res) => {
         stats: {
           answeredCount,
           missedCount,
-          totalDays: answeredCount + missedCount
+          totalDays: answeredCount + missedCount,
+          moodStats: moodStats
         },
+        moodOptions: MOOD_OPTIONS,
         allAnswers: data.answers
       }
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: '服务器错�? });
+    res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
 
@@ -229,13 +259,13 @@ app.get('/api/question-bank', (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: '服务器错�? });
+    res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`每日问答后端服务已启�? http://localhost:${PORT}`);
+  console.log(`每日问答后端服务已启动 http://localhost:${PORT}`);
   const data = readData();
   ensureTodayQuestion(data);
-  console.log(`今日问题已准备就�? ${data.currentQuestion.question}`);
+  console.log(`今日问题已准备就绪 ${data.currentQuestion.question}`);
 });

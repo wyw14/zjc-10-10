@@ -62,10 +62,10 @@
     }
   ],
   "currentQuestion": {
-    "questionId": 1,
-    "question": "如果你能拥有一项超能力，你会选择什么？为什么？",
-    "date": "2026-06-14",
-    "timestamp": 1781366400000
+    "questionId": 2,
+    "question": "描述一个你最近学到的新技能，它如何改变了你的生活？",
+    "date": "2026-06-15",
+    "timestamp": 1781452800000
   },
   "answers": {
     "2026-06-10": {
@@ -102,6 +102,14 @@
       "answer": "我想拥有飞行的能力，因为可以自由地去任何地方，不用被交通限制。",
       "answered": true,
       "answeredAt": "2026-06-14T00:30:22.110Z"
+    },
+    "2026-06-15": {
+      "questionId": 2,
+      "question": "描述一个你最近学到的新技能，它如何改变了你的生活？",
+      "answer": "??????!",
+      "answered": true,
+      "answeredAt": "2026-06-14T19:24:06.515Z",
+      "mood": "happy"
     }
   }
 }

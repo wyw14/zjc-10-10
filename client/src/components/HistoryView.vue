@@ -17,6 +17,21 @@
       </div>
     </div>
 
+    <div v-if="history && history.stats && history.stats.moodStats" class="mood-stats-section">
+      <h3 class="mood-stats-title">😊 本月心情统计</h3>
+      <div class="mood-stats-grid">
+        <div
+          v-for="mood in moodOptionsList"
+          :key="mood.id"
+          class="mood-stat-item"
+        >
+          <span class="mood-stat-emoji">{{ mood.emoji }}</span>
+          <span class="mood-stat-count">{{ history.stats.moodStats[mood.id] || 0 }}</span>
+          <span class="mood-stat-label">{{ mood.label }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="calendar-header">
       <button class="nav-btn" @click="$emit('prev-month')">← 上月</button>
       <div class="calendar-title">
@@ -35,6 +50,7 @@
         @click="selectDay(day)"
       >
         <span v-if="day" class="day-num">{{ day.day }}</span>
+        <span v-if="day && day.mood" class="day-mood">{{ getMoodEmoji(day.mood) }}</span>
       </div>
     </div>
 
@@ -65,6 +81,11 @@
           <p class="a-text">{{ selectedDay.answer }}</p>
         </div>
         <div v-else class="empty-note">这一天没有回答</div>
+        <div v-if="selectedDay.mood" class="detail-mood">
+          <span class="detail-mood-label">当日心情：</span>
+          <span class="detail-mood-emoji">{{ getMoodEmoji(selectedDay.mood) }}</span>
+          <span class="detail-mood-text">{{ getMoodLabel(selectedDay.mood) }}</span>
+        </div>
       </div>
       <div v-else class="empty-note">这一天还没有分配问题</div>
     </div>
@@ -85,6 +106,10 @@ defineEmits(['prev-month', 'next-month'])
 
 const weekdays = ['日', '一', '二', '三', '四', '五', '六']
 const selectedDay = ref(null)
+
+const moodOptionsList = computed(() => {
+  return props.history?.moodOptions || []
+})
 
 const fullCalendar = computed(() => {
   if (!props.history?.calendar) return []
@@ -141,6 +166,16 @@ function formatFullDate(dateStr) {
   const d = new Date(dateStr)
   const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${weekdays[d.getDay()]}`
+}
+
+function getMoodEmoji(moodId) {
+  const mood = moodOptionsList.value.find(m => m.id === moodId)
+  return mood ? mood.emoji : ''
+}
+
+function getMoodLabel(moodId) {
+  const mood = moodOptionsList.value.find(m => m.id === moodId)
+  return mood ? mood.label : ''
 }
 
 watch(() => props.history, () => {

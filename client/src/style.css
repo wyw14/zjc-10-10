@@ -443,3 +443,185 @@ body {
     opacity: 1;
   }
 }
+
+.mood-section {
+  margin-top: 20px;
+}
+
+.mood-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.mood-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mood-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 70px;
+}
+
+.mood-btn:hover {
+  border-color: #764ba2;
+  background: #faf5ff;
+  transform: translateY(-2px);
+}
+
+.mood-btn.active {
+  border-color: #764ba2;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+}
+
+.mood-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mood-emoji {
+  font-size: 1.5rem;
+}
+
+.mood-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.saved-mood {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saved-mood-label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.saved-mood-emoji {
+  font-size: 1.3rem;
+}
+
+.saved-mood-text {
+  color: #764ba2;
+  font-weight: 600;
+}
+
+.mood-stats-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #faf5ff 0%, #f0e6ff 100%);
+  border-radius: 12px;
+}
+
+.mood-stats-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #553c9a;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.mood-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.mood-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.mood-stat-emoji {
+  font-size: 1.5rem;
+}
+
+.mood-stat-count {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.mood-stat-label {
+  font-size: 0.75rem;
+  color: #718096;
+  font-weight: 600;
+}
+
+.day-mood {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.7rem;
+}
+
+.calendar-day.answered .day-mood,
+.calendar-day.missed .day-mood {
+  bottom: 3px;
+  right: 3px;
+}
+
+.detail-mood {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-mood-label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.detail-mood-emoji {
+  font-size: 1.3rem;
+}
+
+.detail-mood-text {
+  color: #764ba2;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .mood-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mood-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 10px 8px;
+  }
+}
