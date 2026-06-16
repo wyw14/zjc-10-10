@@ -62,10 +62,10 @@
     }
   ],
   "currentQuestion": {
-    "questionId": 2,
-    "question": "描述一个你最近学到的新技能，它如何改变了你的生活？",
-    "date": "2026-06-15",
-    "timestamp": 1781452800000
+    "questionId": 3,
+    "question": "如果今天是你生命中的最后一天，你会做什么？",
+    "date": "2026-06-16",
+    "timestamp": 1781539200000
   },
   "answers": {
     "2026-06-10": {
@@ -106,10 +106,18 @@
     "2026-06-15": {
       "questionId": 2,
       "question": "描述一个你最近学到的新技能，它如何改变了你的生活？",
-      "answer": "??????!",
-      "answered": true,
-      "answeredAt": "2026-06-14T19:24:06.515Z",
-      "mood": "happy"
+      "answer": "",
+      "answered": false,
+      "answeredAt": null,
+      "mood": null
+    },
+    "2026-06-16": {
+      "questionId": 3,
+      "question": "如果今天是你生命中的最后一天，你会做什么？",
+      "answer": "",
+      "answered": false,
+      "answeredAt": null,
+      "mood": null
     }
   }
 }

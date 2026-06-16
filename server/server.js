@@ -19,12 +19,33 @@ const MOOD_OPTIONS = [
 app.use(cors());
 app.use(express.json());
 
-function readData() {
+let inMemoryData = null;
+app.use((req, res, next) => {
+  if (req.headers['x-test-mode'] === 'true') {
+    req.isTestMode = true;
+    if (!inMemoryData) {
+      const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+      inMemoryData = JSON.parse(raw);
+    }
+  } else {
+    req.isTestMode = false;
+  }
+  next();
+});
+
+function readData(req) {
+  if (req && req.isTestMode) {
+    return JSON.parse(JSON.stringify(inMemoryData));
+  }
   const raw = fs.readFileSync(DATA_FILE, 'utf-8');
   return JSON.parse(raw);
 }
 
-function writeData(data) {
+function writeData(data, req) {
+  if (req && req.isTestMode) {
+    inMemoryData = data;
+    return;
+  }
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
@@ -50,7 +71,7 @@ function isNewDay(data) {
   return todayStart > data.currentQuestion.timestamp;
 }
 
-function selectQuestionForToday(data) {
+function selectQuestionForToday(data, req) {
   const todayStr = getDateString();
   const todayStart = getDayStartTimestamp();
   const bank = data.questionBank;
@@ -89,13 +110,13 @@ function selectQuestionForToday(data) {
     };
   }
 
-  writeData(data);
+  writeData(data, req);
   return data.currentQuestion;
 }
 
-function ensureTodayQuestion(data) {
+function ensureTodayQuestion(data, req) {
   if (isNewDay(data)) {
-    return selectQuestionForToday(data);
+    return selectQuestionForToday(data, req);
   }
   const todayStr = getDateString();
   if (!data.answers[todayStr]) {
@@ -107,15 +128,15 @@ function ensureTodayQuestion(data) {
       answeredAt: null,
       mood: null
     };
-    writeData(data);
+    writeData(data, req);
   }
   return data.currentQuestion;
 }
 
 app.get('/api/today', (req, res) => {
   try {
-    const data = readData();
-    const question = ensureTodayQuestion(data);
+    const data = readData(req);
+    const question = ensureTodayQuestion(data, req);
     const todayStr = getDateString();
     const todayAnswer = data.answers[todayStr] || { answer: '', answered: false, mood: null };
     res.json({
@@ -141,8 +162,8 @@ app.post('/api/answer', (req, res) => {
     if (typeof answer !== 'string') {
       return res.status(400).json({ success: false, message: '回答内容无效' });
     }
-    const data = readData();
-    ensureTodayQuestion(data);
+    const data = readData(req);
+    ensureTodayQuestion(data, req);
     const todayStr = getDateString();
 
     const validMood = MOOD_OPTIONS.find(m => m.id === mood);
@@ -158,7 +179,7 @@ app.post('/api/answer', (req, res) => {
       mood: moodValue !== null ? moodValue : (currentAnswer.mood || null)
     };
 
-    writeData(data);
+    writeData(data, req);
     res.json({
       success: true,
       data: {
@@ -176,7 +197,7 @@ app.post('/api/answer', (req, res) => {
 
 app.get('/api/history', (req, res) => {
   try {
-    const data = readData();
+    const data = readData(req);
     const { year, month } = req.query;
     const y = year ? parseInt(year) : new Date().getFullYear();
     const m = month ? parseInt(month) : new Date().getMonth() + 1;
@@ -252,7 +273,7 @@ app.get('/api/history', (req, res) => {
 
 app.get('/api/question-bank', (req, res) => {
   try {
-    const data = readData();
+    const data = readData(req);
     res.json({
       success: true,
       data: data.questionBank
